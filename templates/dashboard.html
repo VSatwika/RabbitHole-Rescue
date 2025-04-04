@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            background: #1e1e1e;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3c5b99;
+        }
+        .subtitle {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #3c5b99;
+            margin-top: 10px;
+        }
+        .channel-name {
+            color: #ffffff;
+            font-weight: bold;
+        }
+        .btn-add, .btn-remove {
+            background-color: #3c5b99;
+            border-color: #3c5b99;
+            color: #121212;
+            font-weight: bold;
+        }
+        .btn-add:hover, .btn-remove:hover {
+            background-color: #3c5b99;
+            border-color: #3c5b99;
+        }
+        .btn-logout {
+            background-color: #3c5b99;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .btn-logout:hover {
+            background-color: #3c5b99;
+        }
+        .form-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .form-container input {
+            width: 50%;
+            background: #1e1e1e;
+            color: white;
+            border: 1px solid #3c5b99;
+        }
+        .form-container input::placeholder {
+            color: #3c5b99;
+        }
+        .channel-card {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Hey, {{ user.name }}</h1>
+        <h2 class="subtitle">Your Channels</h2>
+
+        <form action="/add_channel" method="POST" class="form-container">
+            <input type="text" name="profile_url" placeholder="Paste YouTube Channel URL" required class="form-control">
+            <button type="submit" class="btn btn-add">Add</button>
+        </form>
+        
+        <div class="row mt-3">
+            {% for channel in channels %}
+            <div class="col-md-12 mb-3">
+                <div class="channel-card d-flex justify-content-between align-items-center">
+                    <a href="/channel/{{ channel.channel_id }}" class="text-decoration-none channel-name">
+                        {{ channel.channel_name }}
+                    </a>
+                    <form action="/delete_creator" method="POST" class="d-inline">
+                        <input type="hidden" name="channel_id" value="{{ channel.channel_id }}">
+                        <button onclick="removeChannel('{{ channel.channel_id }}')" class="btn btn-remove btn-sm">Remove</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        
+        <div class="mt-4 text-center">
+            <a href="/logout" class="btn-logout">Logout</a>
+        </div>
+    </div>
+    
+    <script>
+        function removeChannel(channelId) {
+            fetch('/delete_creator', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ channel_id: channelId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
